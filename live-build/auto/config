@@ -27,11 +27,18 @@ set -e
 # up the kernel package name -- Debian's Fastly-backed mirror does not
 # normalize that and returns 404, aborting the build. Dropping the
 # trailing slash avoids the double slash entirely.
+#
+# NOTE: --linux-flavours amd64 must be set explicitly. Without it,
+# lb_chroot_linux-image falls back to auto-detection by downloading
+# dists/trixie/Contents-amd64.gz, which returns 404 on the Debian mirrors
+# and aborts the build. Specifying the flavour directly tells live-build to
+# use the linux-image-amd64 metapackage without any mirror look-up.
 lb config noauto \
     --mode debian \
     --distribution trixie \
     --archive-areas "main contrib non-free-firmware" \
     --architectures amd64 \
+    --linux-flavours amd64 \
     --binary-images iso-hybrid \
     --linux-packages linux-image \
     --mirror-bootstrap "http://deb.debian.org/debian" \

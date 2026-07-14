@@ -12,7 +12,20 @@ jobs:
       - name: Install live-build
         run: |
           sudo apt-get update
-          sudo apt-get install -y live-build debian-archive-keyring
+          sudo apt-get install -y debootstrap debian-archive-keyring wget
+          # Ubuntu's packaged live-build (3.0~a57) is a years-old alpha
+          # snapshot with several bugs against current Debian mirror
+          # layouts: it defaults to mode=ubuntu, writes the pre-2023
+          # security suite name (trixie/updates instead of
+          # trixie-security), and hardcodes a top-level
+          # dists/trixie/Contents-<arch>.gz lookup that Debian no longer
+          # publishes (only the per-component
+          # dists/trixie/main/Contents-<arch>.gz exists). Installing the
+          # current live-build .deb straight from Debian's own archive
+          # (the exact version shipped with trixie) avoids all of these
+          # at the root instead of patching each symptom individually.
+          wget -q http://ftp.debian.org/debian/pool/main/l/live-build/live-build_20250505+deb13u1_all.deb
+          sudo apt-get install -y ./live-build_20250505+deb13u1_all.deb
 
       - name: Build the Nexus Linux live ISO
         run: |

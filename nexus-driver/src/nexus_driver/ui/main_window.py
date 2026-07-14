@@ -5,7 +5,7 @@ from PySide6.QtWidgets import (
 
 from nexus_driver.core.driver_catalog import DRIVER_CATALOG
 from nexus_common.package_cache import (
-    PackagePrefetcher, is_cached, install_from_cache, PYSIDE6_AVAILABLE,
+    PackagePrefetcher, is_cached, install_from_cache, default_dry_run, PYSIDE6_AVAILABLE,
 )
 
 
@@ -116,7 +116,7 @@ class NexusDriverWindow(QMainWindow):
 
     def _install(self, item, row):
         was_cached = is_cached(item)
-        install_from_cache(item, dry_run=True)
+        install_from_cache(item, dry_run=default_dry_run())
         self.table.setItem(row, 2, QTableWidgetItem("Installed"))
         speed_note = "instantly from cache" if was_cached else "after downloading (not prefetched)"
         self.statusBar().showMessage(f"{item.name} installed {speed_note}.")

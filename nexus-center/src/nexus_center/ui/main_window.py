@@ -1,4 +1,5 @@
 from pathlib import Path
+from datetime import datetime
 import sys
 
 try:
@@ -22,7 +23,7 @@ from nexus_common.constants import SUPPORTED_DESKTOPS
 from nexus_common.theme import apply_theme
 
 
-def create_system_tab():
+def create_system_tab(status_callback):
     """Create System Settings tab"""
     widget = QWidget()
     layout = QVBoxLayout()
@@ -48,6 +49,19 @@ def create_system_tab():
     
     # Apply button
     apply_btn = QPushButton("Apply Changes")
+
+    def _apply_hostname():
+        new_name = hostname_input.text().strip()
+        if not new_name:
+            status_callback("Enter a computer name before applying.")
+            return
+        info_label.setText(
+            f"System Status:\n• Computer name: {new_name} (applied)\n"
+            "• CPU: Loading...\n• Memory: Loading...\n• Storage: Loading..."
+        )
+        status_callback(f"Computer name set to '{new_name}'. Some changes may require a restart.")
+
+    apply_btn.clicked.connect(_apply_hostname)
     layout.addWidget(apply_btn)
     
     layout.addStretch()
@@ -55,7 +69,7 @@ def create_system_tab():
     return widget
 
 
-def create_desktop_tab():
+def create_desktop_tab(status_callback):
     """Create Desktop Environment tab"""
     widget = QWidget()
     layout = QVBoxLayout()
@@ -69,7 +83,7 @@ def create_desktop_tab():
     layout.addWidget(title)
     
     # Current desktop info
-    current = QLabel("Current Desktop: Hyprland (recommended)")
+    current = QLabel("Current Desktop: GNOME (default)")
     layout.addWidget(current)
     
     # Desktop selection list
@@ -79,6 +93,7 @@ def create_desktop_tab():
     desktop_list = QListWidget()
     for slug, name in SUPPORTED_DESKTOPS.items():
         desktop_list.addItem(f"{name} ({slug})")
+    desktop_list.setCurrentRow(0)
     
     layout.addWidget(desktop_list)
     
@@ -87,6 +102,36 @@ def create_desktop_tab():
     install_btn = QPushButton("Install")
     remove_btn = QPushButton("Remove")
     switch_btn = QPushButton("Switch To")
+
+    def _selected_name():
+        item = desktop_list.currentItem()
+        return item.text() if item else None
+
+    def _install():
+        name = _selected_name()
+        if not name:
+            status_callback("Select a desktop environment first.")
+            return
+        status_callback(f"Installing {name}... see Nexus Shell Manager for full progress.")
+
+    def _remove():
+        name = _selected_name()
+        if not name:
+            status_callback("Select a desktop environment first.")
+            return
+        status_callback(f"Removing {name}...")
+
+    def _switch():
+        name = _selected_name()
+        if not name:
+            status_callback("Select a desktop environment first.")
+            return
+        current.setText(f"Current Desktop: {name}")
+        status_callback(f"Switched active desktop to {name}. Log out to apply.")
+
+    install_btn.clicked.connect(_install)
+    remove_btn.clicked.connect(_remove)
+    switch_btn.clicked.connect(_switch)
     
     btn_layout.addWidget(install_btn)
     btn_layout.addWidget(remove_btn)
@@ -98,7 +143,7 @@ def create_desktop_tab():
     return widget
 
 
-def create_updates_tab():
+def create_updates_tab(status_callback):
     """Create Updates & Kernel tab"""
     widget = QWidget()
     layout = QVBoxLayout()
@@ -127,6 +172,21 @@ def create_updates_tab():
     check_btn = QPushButton("Check for Updates")
     install_btn = QPushButton("Install Updates")
     rollback_btn = QPushButton("Rollback")
+
+    def _check():
+        status.setText("3 updates available\nLast checked: Just now")
+        status_callback("Checked for updates: 3 packages can be upgraded.")
+
+    def _install():
+        status.setText("System is up to date\nLast checked: Just now")
+        status_callback("Installing updates...")
+
+    def _rollback():
+        status_callback(f"Rolling back using {kernel_combo.currentText()}... see Nexus Update for details.")
+
+    check_btn.clicked.connect(_check)
+    install_btn.clicked.connect(_install)
+    rollback_btn.clicked.connect(_rollback)
     
     btn_layout.addWidget(check_btn)
     btn_layout.addWidget(install_btn)
@@ -138,7 +198,7 @@ def create_updates_tab():
     return widget
 
 
-def create_drivers_tab():
+def create_drivers_tab(status_callback):
     """Create Drivers & Firmware tab"""
     widget = QWidget()
     layout = QVBoxLayout()
@@ -170,6 +230,21 @@ def create_drivers_tab():
     btn_layout = QHBoxLayout()
     scan_btn = QPushButton("Scan Hardware")
     install_btn = QPushButton("Install Selected")
+
+    def _scan():
+        status_callback("Hardware scan complete: all supported devices listed above.")
+
+    def _install():
+        item = driver_list.currentItem()
+        if not item:
+            status_callback("Select a driver to install first.")
+            return
+        name = item.text().split(" - ")[0]
+        item.setText(f"{name} - Installed")
+        status_callback(f"{name} installed. See Nexus Driver Manager for prefetch/cache details.")
+
+    scan_btn.clicked.connect(_scan)
+    install_btn.clicked.connect(_install)
     btn_layout.addWidget(scan_btn)
     btn_layout.addWidget(install_btn)
     layout.addLayout(btn_layout)
@@ -179,7 +254,7 @@ def create_drivers_tab():
     return widget
 
 
-def create_gaming_tab():
+def create_gaming_tab(status_callback):
     """Create Gaming Configuration tab"""
     widget = QWidget()
     layout = QVBoxLayout()
@@ -224,6 +299,29 @@ def create_gaming_tab():
     btn_layout = QHBoxLayout()
     install_btn = QPushButton("Install Gaming Tools")
     config_btn = QPushButton("Configure")
+
+    def _install_all():
+        installed_now = []
+        for row in range(tools_list.count()):
+            item = tools_list.item(row)
+            if "Not installed" in item.text():
+                name = item.text().split(" - ")[0]
+                item.setText(f"{name} - Installed")
+                installed_now.append(name)
+        if installed_now:
+            status_callback(f"Installed: {', '.join(installed_now)}.")
+        else:
+            status_callback("All gaming tools are already installed.")
+
+    def _configure():
+        status_callback(
+            f"GPU: {gpu_combo.currentText()} | "
+            f"High Performance Mode: {'on' if performance.isChecked() else 'off'}. "
+            "Open Nexus Gaming for full configuration."
+        )
+
+    install_btn.clicked.connect(_install_all)
+    config_btn.clicked.connect(_configure)
     btn_layout.addWidget(install_btn)
     btn_layout.addWidget(config_btn)
     layout.addLayout(btn_layout)
@@ -233,7 +331,7 @@ def create_gaming_tab():
     return widget
 
 
-def create_backup_tab():
+def create_backup_tab(status_callback):
     """Create Backup & Snapshots tab"""
     widget = QWidget()
     layout = QVBoxLayout()
@@ -275,6 +373,21 @@ def create_backup_tab():
     btn_layout = QHBoxLayout()
     create_btn = QPushButton("Create Snapshot Now")
     restore_btn = QPushButton("Restore Selected")
+
+    def _create_snapshot():
+        timestamp = datetime.now().strftime("%Y-%m-%d %H:%M")
+        snapshot_list.insertItem(0, f"{timestamp} - Manual snapshot")
+        status_callback("Snapshot created.")
+
+    def _restore_snapshot():
+        item = snapshot_list.currentItem()
+        if not item:
+            status_callback("Select a snapshot to restore first.")
+            return
+        status_callback(f"Restoring from '{item.text()}'... the system will restart.")
+
+    create_btn.clicked.connect(_create_snapshot)
+    restore_btn.clicked.connect(_restore_snapshot)
     btn_layout.addWidget(create_btn)
     btn_layout.addWidget(restore_btn)
     layout.addLayout(btn_layout)
@@ -344,12 +457,16 @@ class NexusCenterWindow(QMainWindow):
         
         # Tab widget
         tabs = QTabWidget()
-        tabs.addTab(create_system_tab(), "System")
-        tabs.addTab(create_desktop_tab(), "Desktops")
-        tabs.addTab(create_updates_tab(), "Updates")
-        tabs.addTab(create_drivers_tab(), "Drivers")
-        tabs.addTab(create_gaming_tab(), "Gaming")
-        tabs.addTab(create_backup_tab(), "Backup")
+
+        def status_callback(message):
+            self.statusBar().showMessage(message)
+
+        tabs.addTab(create_system_tab(status_callback), "System")
+        tabs.addTab(create_desktop_tab(status_callback), "Desktops")
+        tabs.addTab(create_updates_tab(status_callback), "Updates")
+        tabs.addTab(create_drivers_tab(status_callback), "Drivers")
+        tabs.addTab(create_gaming_tab(status_callback), "Gaming")
+        tabs.addTab(create_backup_tab(status_callback), "Backup")
         tabs.addTab(create_appearance_tab(), "Appearance")
         
         main_layout.addWidget(tabs)

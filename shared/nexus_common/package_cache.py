@@ -48,8 +48,22 @@ def is_cached(item: CacheablePackage) -> bool:
     return all(pkg in cached_names for pkg in item.packages)
 
 
+def default_dry_run() -> bool:
+    """Whether install/prefetch actions should simulate instead of executing.
+
+    Real package operations only make sense on Linux; everywhere else (e.g.
+    this Windows dev machine) they must stay simulated.
+    """
+    return sys.platform != "linux"
+
+
 def install_from_cache(item: CacheablePackage, dry_run: bool = True) -> list:
-    """Build (and optionally run) the install command using only the local cache."""
+    """Build (and optionally run) the install command using only the local cache.
+
+    Real execution is elevated via `pkexec` -- GUI apps run as a normal user,
+    and `apt-get` requires root, so without this the command would just fail
+    silently (or with a permission error) instead of prompting for auth.
+    """
     if not item.packages:
         return []
     command = [
@@ -58,7 +72,7 @@ def install_from_cache(item: CacheablePackage, dry_run: bool = True) -> list:
         *item.packages,
     ]
     if not dry_run:
-        subprocess.run(command, check=True)
+        subprocess.run(["pkexec", *command], check=True)
     return [" ".join(command)]
 
 
@@ -108,7 +122,7 @@ class PackagePrefetcher(QThread if PYSIDE6_AVAILABLE else object):
             "-o", f"Dir::Cache::Archives={CACHE_ROOT}",
             *item.packages,
         ]
-        subprocess.run(command, check=True)
+        subprocess.run(["pkexec", *command], check=True)
         self._emit_progress(item.id, 100)
 
     def _emit_started(self, item_id):

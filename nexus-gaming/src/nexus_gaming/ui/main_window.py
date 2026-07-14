@@ -6,7 +6,7 @@ from PySide6.QtWidgets import (
 
 from nexus_gaming.core.gaming_catalog import GAMING_CATALOG
 from nexus_common.package_cache import (
-    PackagePrefetcher, is_cached, install_from_cache, PYSIDE6_AVAILABLE,
+    PackagePrefetcher, is_cached, install_from_cache, default_dry_run, PYSIDE6_AVAILABLE,
 )
 
 
@@ -137,7 +137,7 @@ class NexusGamingWindow(QMainWindow):
                 continue
             if not is_cached(item):
                 all_cached = False
-            install_from_cache(item, dry_run=True)
+            install_from_cache(item, dry_run=default_dry_run())
             row = self.row_by_id[item.id]
             self.table.setItem(row, 3, QTableWidgetItem("Installed"))
             installed.append(item.name)

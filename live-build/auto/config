@@ -20,6 +20,13 @@ set -e
 # re-added for the final image via
 # config/hooks/live/0100-add-security-repo.hook.chroot.
 #
+# --linux-packages linux-image-amd64: specifying the exact amd64 metapackage
+# avoids lb_chroot_linux-image's auto-detection path, which downloads
+# dists/trixie/Contents-amd64.gz to discover the kernel package name.
+# That file is not served at the suite root on Debian's Fastly-backed mirror
+# and returns 404, aborting the build. Using the explicit metapackage name
+# skips the Contents lookup entirely.
+#
 # NOTE: mirror URLs below deliberately have NO trailing slash. With a
 # trailing slash (which matches live-build's own documented default,
 # "http://deb.debian.org/debian/"), lb_chroot_linux-image builds a
@@ -33,7 +40,7 @@ lb config noauto \
     --archive-areas "main contrib non-free-firmware" \
     --architectures amd64 \
     --binary-images iso-hybrid \
-    --linux-packages linux-image \
+    --linux-packages linux-image-amd64 \
     --mirror-bootstrap "http://deb.debian.org/debian" \
     --mirror-chroot "http://deb.debian.org/debian" \
     --mirror-binary "http://deb.debian.org/debian" \

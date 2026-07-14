@@ -6,7 +6,9 @@ Build-Depends: debhelper-compat (= 13),
                dh-python,
                python3-dev,
                python3-setuptools,
-               python3-pyside6
+               python3-pyside6.qtcore,
+               python3-pyside6.qtgui,
+               python3-pyside6.qtwidgets
 Standards-Version: 4.7.0
 Rules-Requires-Root: no
 Homepage: https://github.com/nexuslinux/nexus-linux
@@ -18,7 +20,9 @@ Architecture: any
 Depends: ${misc:Depends},
          ${python3:Depends},
          python3 (>= 3.11),
-         python3-pyside6,
+         python3-pyside6.qtcore,
+         python3-pyside6.qtgui,
+         python3-pyside6.qtwidgets,
          ubuntu-desktop-minimal | debian-desktop-minimal
 Suggests: ubuntu-drivers-common,
           steam,

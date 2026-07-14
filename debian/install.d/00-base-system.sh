@@ -16,7 +16,7 @@ fi
 apt-get update -qq || true
 
 # Install essential dependencies if missing
-for pkg in python3-pyside6 ubuntu-drivers-common; do
+for pkg in python3-pyside6.qtcore python3-pyside6.qtgui python3-pyside6.qtwidgets ubuntu-drivers-common; do
     if ! dpkg -l | grep -q "^ii.*$pkg"; then
         apt-get install -y "$pkg" || true
     fi

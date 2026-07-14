@@ -52,7 +52,7 @@ What `build.sh` does
 Package selection
 ------------------
 `config/package-lists/nexus-desktop.list.chroot` installs `task-gnome-desktop`
-+ `gdm3` + `python3-pyside6` + `network-manager-gnome` + `sudo` +
++ `gdm3` + `python3-pyside6.qtcore/.qtgui/.qtwidgets` + `network-manager-gnome` + `sudo` +
 `firmware-linux` + `locales`, so GNOME, networking, and Nexus Installer's
 runtime dependency are all present in the live filesystem.
 

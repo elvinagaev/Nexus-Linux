@@ -1,0 +1,40 @@
+Source: nexus-linux
+Section: admin
+Priority: optional
+Maintainer: Nexus Linux Team <nexus@example.com>
+Build-Depends: debhelper-compat (= 13),
+               dh-python,
+               python3-dev,
+               python3-setuptools,
+               python3-pyside6
+Standards-Version: 4.7.0
+Rules-Requires-Root: no
+Homepage: https://github.com/nexuslinux/nexus-linux
+Vcs-Git: https://github.com/nexuslinux/nexus-linux.git
+Vcs-Browser: https://github.com/nexuslinux/nexus-linux
+
+Package: nexus-linux
+Architecture: any
+Depends: ${misc:Depends},
+         ${python3:Depends},
+         python3 (>= 3.11),
+         python3-pyside6,
+         ubuntu-desktop-minimal | debian-desktop-minimal
+Suggests: ubuntu-drivers-common,
+          steam,
+          lutris
+Description: Modular Linux distribution based on Ubuntu/Debian
+ Nexus Linux is a modern, modular operating system built on top of Ubuntu LTS
+ and Debian, featuring:
+ .
+  * Independent, modular applications for settings, desktop management, and
+    system administration
+  * Support for multiple desktop environments (Hyprland, KDE, XFCE, etc.)
+  * Graphical installer with profile-based setup
+  * First-class gaming support with Steam, Proton, and Wine
+  * Automatic driver and firmware management
+  * System snapshots and rollback functionality
+  * Update management with kernel selection
+  * Modern Qt6-based user interface
+ .
+ This package provides the core Nexus Linux infrastructure.

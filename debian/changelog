@@ -1,0 +1,11 @@
+nexus-linux (0.1.0-1) unstable; urgency=medium
+
+  * Initial release
+  * Modular architecture with independent applications
+  * Debian/Ubuntu package infrastructure
+  * Qt6/PySide6 UI framework
+  * Support for multiple desktop environments
+  * Gaming-first functionality with driver management
+  * First-boot installer with profile selection
+
+ -- Nexus Linux Team <nexus@example.com>  Mon, 14 Jul 2026 12:00:00 +0000

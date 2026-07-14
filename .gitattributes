@@ -1,0 +1,16 @@
+# Normalize all text files to LF line endings. This matters a lot here:
+# shell scripts (debian/install.d/*.sh, live-build/*.sh) must have LF endings
+# to run correctly on the Linux CI runners and the final Linux system --
+# CRLF line endings break the shebang line and cause "bad interpreter" or
+# "$'\r': command not found" errors.
+* text=auto eol=lf
+
+*.sh text eol=lf
+*.py text eol=lf
+*.yml text eol=lf
+*.yaml text eol=lf
+
+# Binary-ish / generated files some tools might touch -- leave untouched.
+*.png binary
+*.jpg binary
+*.ico binary

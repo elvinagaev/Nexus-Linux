@@ -1,0 +1,9 @@
+task-gnome-desktop
+gdm3
+python3
+python3-pyside6
+network-manager
+network-manager-gnome
+sudo
+firmware-linux
+locales

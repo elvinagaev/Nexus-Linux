@@ -1,0 +1,22 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "nexus-linux"
+version = "0.1.0"
+description = "Modular Linux distribution based on Ubuntu/Debian"
+requires-python = ">=3.11"
+authors = [
+    {name = "Nexus Linux Team", email = "nexus@example.com"}
+]
+license = {text = "MIT"}
+dependencies = ["PySide6>=6.8.0"]
+
+[tool.setuptools]
+packages = ["nexus_common"]
+
+[tool.pytest.ini_options]
+pythonpath = [".", "shared"]
+testpaths = ["tests"]
+addopts = "-v --tb=short"

@@ -1,0 +1,7 @@
+[Desktop Entry]
+Type=Application
+Name=Install Nexus Linux
+Comment=Launches the Nexus Linux installer
+Exec=/usr/local/bin/nexus-installer
+Icon=system-software-install
+Terminal=false

@@ -1,0 +1,1 @@
+debian/install.d/*.sh usr/lib/nexus-linux/install.d/

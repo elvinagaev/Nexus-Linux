@@ -1,0 +1,3 @@
+#!/bin/bash
+# Make all install.d scripts executable
+chmod +x debian/install.d/*.sh

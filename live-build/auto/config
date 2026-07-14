@@ -1,0 +1,11 @@
+#!/bin/sh
+set -e
+
+lb config noauto \
+    --distribution trixie \
+    --archive-areas "main contrib non-free-firmware" \
+    --architectures amd64 \
+    --binary-images iso-hybrid \
+    --linux-packages linux-image \
+    --bootappend-live "boot=live components quiet splash username=nexus hostname=nexus-linux" \
+    "${@}"

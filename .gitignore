@@ -1,0 +1,42 @@
+*~
+*.pyc
+__pycache__/
+.pytest_cache/
+*.egg-info/
+dist/
+build/
+.venv/
+.env
+*.deb
+*.dsc
+*.changes
+.DS_Store
+.vscode/
+*.swp
+*.swo
+.idea/
+
+# Extracted Debian netinst/DVD reference material that lives at the repo
+# root (.disk, boot, dists, pool, install.amd, firmware, EFI, isolinux, ...).
+# This is not used by the live-build pipeline (which does its own fresh
+# debootstrap during the CI ISO build) and is far too large / contains
+# individual files over GitHub's 100MB push limit. Kept on disk locally,
+# just not version-controlled.
+/.disk/
+/boot/
+/css/
+/dists/
+/doc/
+/EFI/
+/firmware/
+/install/
+/install.amd/
+/isolinux/
+/pics/
+/pool/
+/md5sum.txt
+/README.html
+/README.mirrors.html
+/README.mirrors.txt
+/README.source
+/README.txt

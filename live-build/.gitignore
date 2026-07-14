@@ -1,0 +1,18 @@
+# live-build working directories and outputs -- generated at build time,
+# never commit these.
+binary/
+chroot/
+cache/
+.build/
+*.iso
+*.img
+*.zsync
+*.contents
+*.files
+*.packages
+*.buildlog
+*.build
+
+# Staged application source copied in by build.sh -- the real source of
+# truth lives in ../shared, ../nexus-installer, ../nexus-center.
+config/includes.chroot/opt/nexus-linux/

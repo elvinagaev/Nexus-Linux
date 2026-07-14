@@ -1,5 +1,7 @@
 # Nexus Linux
 
+*A system you don't need to configure. Download and play.*
+
 A modular Linux distribution scaffold based on Ubuntu/Debian LTS, featuring independent applications for system administration, desktop management, installation, updates, drivers, gaming, and backups.
 
 ## Philosophy

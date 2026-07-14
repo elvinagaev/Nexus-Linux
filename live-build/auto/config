@@ -19,6 +19,14 @@ set -e
 # from, so it is skipped entirely. The correct "trixie-security" line is
 # re-added for the final image via
 # config/hooks/live/0100-add-security-repo.hook.chroot.
+#
+# NOTE: mirror URLs below deliberately have NO trailing slash. With a
+# trailing slash (which matches live-build's own documented default,
+# "http://deb.debian.org/debian/"), lb_chroot_linux-image builds a
+# double-slash URL ("debian//dists/trixie/Contents-amd64.gz") when looking
+# up the kernel package name -- Debian's Fastly-backed mirror does not
+# normalize that and returns 404, aborting the build. Dropping the
+# trailing slash avoids the double slash entirely.
 lb config noauto \
     --mode debian \
     --distribution trixie \
@@ -26,9 +34,9 @@ lb config noauto \
     --architectures amd64 \
     --binary-images iso-hybrid \
     --linux-packages linux-image \
-    --mirror-bootstrap "http://deb.debian.org/debian/" \
-    --mirror-chroot "http://deb.debian.org/debian/" \
-    --mirror-binary "http://deb.debian.org/debian/" \
+    --mirror-bootstrap "http://deb.debian.org/debian" \
+    --mirror-chroot "http://deb.debian.org/debian" \
+    --mirror-binary "http://deb.debian.org/debian" \
     --security false \
     --mirror-chroot-security "" \
     --mirror-binary-security "" \

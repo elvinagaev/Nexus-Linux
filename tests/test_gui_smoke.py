@@ -12,6 +12,11 @@ import sys
 from pathlib import Path
 
 os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
+# Force simulated (dry-run) package/system actions -- these smoke tests only
+# verify UI wiring/state updates, and CI runners have no pkexec/polkit
+# session available (real Linux, but not a desktop session), so real
+# subprocess execution must stay disabled regardless of sys.platform.
+os.environ.setdefault("NEXUS_DRY_RUN", "1")
 
 import pytest
 

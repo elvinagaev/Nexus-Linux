@@ -10,7 +10,6 @@ When not running on Linux (e.g. during development), destructive commands
 are simulated instead of executed so the wizard can be exercised safely.
 """
 
-import sys
 import time
 from dataclasses import dataclass, field
 
@@ -28,6 +27,7 @@ except ImportError:
 
 from . import disk_manager, efi_manager, locale_manager, account_manager
 from nexus_common.constants import INSTALL_PROFILES
+from nexus_common.package_cache import default_dry_run
 from .account_manager import AccountConfiguration
 
 
@@ -65,7 +65,7 @@ class InstallEngine(QThread if PYSIDE6_AVAILABLE else object):
         if PYSIDE6_AVAILABLE:
             super().__init__()
         self.config = config
-        self._simulate = sys.platform != "linux"
+        self._simulate = default_dry_run()
 
     def run(self):
         total = len(INSTALL_STEPS)

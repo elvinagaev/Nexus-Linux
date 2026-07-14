@@ -8,6 +8,7 @@ making the perceived install time almost instant instead of waiting on a
 full network download.
 """
 
+import os
 import subprocess
 import sys
 import time
@@ -52,8 +53,15 @@ def default_dry_run() -> bool:
     """Whether install/prefetch actions should simulate instead of executing.
 
     Real package operations only make sense on Linux; everywhere else (e.g.
-    this Windows dev machine) they must stay simulated.
+    this Windows dev machine) they must stay simulated. The NEXUS_DRY_RUN
+    environment variable always takes priority when set -- this lets tests
+    (including headless GUI smoke tests running on a real Linux CI runner,
+    which has no pkexec/polkit session available) force simulation instead
+    of relying on the platform check.
     """
+    override = os.environ.get("NEXUS_DRY_RUN")
+    if override is not None:
+        return override.strip().lower() not in ("0", "false", "")
     return sys.platform != "linux"
 
 
@@ -90,7 +98,7 @@ class PackagePrefetcher(QThread if PYSIDE6_AVAILABLE else object):
         if PYSIDE6_AVAILABLE:
             super().__init__()
         self.items = list(items)
-        self._simulate = sys.platform != "linux"
+        self._simulate = default_dry_run()
 
     def run(self):
         for item in self.items:

@@ -9,7 +9,7 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
 cd "$SCRIPT_DIR"
 
-chmod +x auto/config auto/clean config/includes.chroot/usr/local/bin/nexus-installer
+chmod +x auto/config auto/clean config/includes.chroot/usr/local/bin/nexus-installer config/hooks/live/*.hook.chroot
 
 echo "Staging Nexus application source into the live filesystem..."
 STAGE_DIR="config/includes.chroot/opt/nexus-linux"

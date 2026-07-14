@@ -1,0 +1,16 @@
+#!/bin/sh
+# Re-add the Debian security repository with the correct modern suite name.
+#
+# auto/config disables --security entirely (see the comment there): the
+# live-build package shipped by Ubuntu's own archive is a very old snapshot
+# that predates Debian's 2023 security-suite rename and writes the
+# pre-bookworm "trixie/updates" line, which 404s against
+# security.debian.org (only "trixie-security" exists there for Debian 12+).
+# Chroot hooks run after package installation, so this does not affect
+# what gets installed during the build -- it only fixes the sources.list
+# shipped in the final image, so installed Nexus Linux systems can still
+# fetch security updates with a normal `apt update`.
+set -e
+
+echo "deb http://security.debian.org/debian-security trixie-security main contrib non-free-firmware" \
+    >> /etc/apt/sources.list

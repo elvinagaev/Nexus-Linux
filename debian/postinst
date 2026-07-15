@@ -1,3 +1,4 @@
 #!/bin/bash
-# Make all install.d scripts executable
-chmod +x debian/install.d/*.sh
+# Make all install.d scripts executable (installed by the nexus-linux
+# package, not the source tree, since this runs on the target system).
+chmod +x /usr/lib/nexus-linux/install.d/*.sh

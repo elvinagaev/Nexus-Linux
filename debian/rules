@@ -2,5 +2,29 @@
 
 export DH_VERBOSE=1
 
+# This source package bundles several independent, path-based Python
+# distributions (shared/nexus_common plus each nexus-* application) that
+# dh-python's pybuild cannot build/install in a single pass from the
+# top-level pyproject.toml (which intentionally declares no packages of its
+# own -- see pyproject.toml). dh_auto_build/install are overridden below to
+# install every component explicitly into the binary package.
+APPS = nexus-center nexus-shell-manager nexus-installer nexus-update \
+       nexus-driver nexus-store nexus-backup nexus-gaming nexus-settings
+
 %:
 	dh $@ --with python3 --buildsystem=pybuild
+
+override_dh_auto_build:
+	# Pure-Python packages; nothing to compile.
+
+override_dh_auto_install:
+	set -e; \
+	destdir="$(CURDIR)/debian/nexus-linux"; \
+	for pkgdir in shared $(APPS); do \
+		python3 -m pip install --root="$$destdir" --prefix=/usr \
+			--no-deps --no-build-isolation --no-warn-script-location \
+			--break-system-packages "$(CURDIR)/$$pkgdir"; \
+	done
+
+override_dh_auto_test:
+	QT_QPA_PLATFORM=offscreen NEXUS_DRY_RUN=1 python3 -m pytest tests/ -q

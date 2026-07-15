@@ -50,12 +50,18 @@ nexus-linux/
 
 Install test dependencies:
 ```bash
-pip install pytest
+pip install -r requirements-dev.txt
 ```
 
 Run tests:
 ```bash
 pytest -v
+```
+
+Install the shared library and an app for real (each app depends on `nexus-common`):
+```bash
+pip install -e ./shared -e ./nexus-center
+nexus-center
 ```
 
 Build Debian package:

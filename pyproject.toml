@@ -13,8 +13,12 @@ authors = [
 license = {text = "MIT"}
 dependencies = ["PySide6>=6.8.0"]
 
+# This root pyproject.toml exists only to configure pytest and repo-wide dev
+# tooling; it is not built or published as its own distribution. Each
+# installable component (shared/nexus_common and every nexus-* app) has its
+# own pyproject.toml under its respective directory.
 [tool.setuptools]
-packages = ["nexus_common"]
+packages = []
 
 [tool.pytest.ini_options]
 pythonpath = [".", "shared"]

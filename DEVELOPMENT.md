@@ -37,19 +37,24 @@ nexus-{name}/
 
 To develop a module:
 
-1. **Navigate to the module**:
+1. **Install the shared library first** (every app depends on it):
+   ```bash
+   pip install -e ./shared
+   ```
+
+2. **Navigate to the module**:
    ```bash
    cd nexus-center
    ```
 
-2. **Install in development mode**:
+3. **Install in development mode**:
    ```bash
    pip install -e .
    ```
 
-3. **Make changes** to files in `src/nexus_{name}/`
+4. **Make changes** to files in `src/nexus_{name}/`
 
-4. **Run tests**:
+5. **Run tests**:
    ```bash
    pytest tests/ -v
    ```
@@ -160,11 +165,13 @@ debian/rules binary
 After setting up:
 
 ```bash
-# From the nexus-linux directory
-python -m nexus_center.main
+pip install -e ./shared -e ./nexus-center
 
-# Or if installed as package
-python -c "from nexus_center.main import main; main()"
+# From anywhere, once installed:
+nexus-center
+
+# Or directly as a module:
+python -m nexus_center.main
 ```
 
 Note: Requires PySide6 to be installed:

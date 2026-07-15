@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Application
+Name=Nexus Update
+Comment=Update, rollback, kernel management, and Nexus Linux self-updates
+Exec=/usr/local/bin/nexus-update
+Icon=system-software-update
+Terminal=false
+Categories=System;

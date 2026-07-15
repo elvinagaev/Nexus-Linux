@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Application
+Name=Nexus Center
+Comment=Central settings and administration hub
+Exec=/usr/local/bin/nexus-center
+Icon=preferences-system
+Terminal=false
+Categories=Settings;

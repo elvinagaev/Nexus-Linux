@@ -94,6 +94,10 @@ def apply_account(account: AccountConfiguration, target_root: str | None = None)
     config_dir = f"/home/{account.username}/.config"
     subprocess.run([*prefix, "mkdir", "-p", config_dir], check=True)
     subprocess.run([*prefix, "touch", f"{config_dir}/gnome-initial-setup-done"], check=True)
+
+    if target_root:
+        _replace_installer_autostart_with_gaming_welcome(prefix, config_dir)
+
     subprocess.run(
         [*prefix, "chown", "-R", f"{account.username}:{account.username}", config_dir],
         check=True,
@@ -119,4 +123,38 @@ def _write_hostname_files(prefix: list, hostname: str) -> None:
     subprocess.run(
         [*prefix, "tee", "/etc/hosts"],
         input=hosts_content, text=True, check=True, stdout=subprocess.DEVNULL,
+    )
+
+
+_NEXUS_GAMING_WELCOME_DESKTOP = """[Desktop Entry]
+Type=Application
+Name=Nexus Gaming Setup
+Comment=One-time prompt to grab GPU drivers, Wine/Proton-GE, Steam, and Discord after install
+Exec=/usr/local/bin/nexus-gaming
+Icon=applications-games
+Terminal=false
+X-GNOME-Autostart-enabled=true
+NoDisplay=false
+"""
+
+
+def _replace_installer_autostart_with_gaming_welcome(prefix: list, config_dir: str) -> None:
+    """
+    The new user's home is created from /etc/skel (via `useradd -m`), which
+    (since the whole target filesystem is a clone of the running live
+    session -- see target_installer.py) still contains the LIVE session's
+    own `nexus-installer.desktop` autostart entry. Left alone, the installer
+    would relaunch itself the first time this brand-new account logs into
+    the real, already-installed system. Replace it with a one-shot Nexus
+    Gaming welcome entry instead, so the user lands somewhere useful (GPU
+    drivers, Wine/Proton-GE, Steam, Discord) instead of the installer.
+    Nexus Gaming deletes this file itself on first launch (see
+    nexus_gaming.main._disable_welcome_autostart) so it never reappears.
+    """
+    autostart_dir = f"{config_dir}/autostart"
+    subprocess.run([*prefix, "mkdir", "-p", autostart_dir], check=True)
+    subprocess.run([*prefix, "rm", "-f", f"{autostart_dir}/nexus-installer.desktop"], check=True)
+    subprocess.run(
+        [*prefix, "tee", f"{autostart_dir}/nexus-gaming-welcome.desktop"],
+        input=_NEXUS_GAMING_WELCOME_DESKTOP, text=True, check=True, stdout=subprocess.DEVNULL,
     )

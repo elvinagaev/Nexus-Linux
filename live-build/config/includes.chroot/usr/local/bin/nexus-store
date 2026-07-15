@@ -1,0 +1,8 @@
+#!/bin/sh
+# Launches Nexus Store from its bundled source tree inside the live
+# filesystem. A real .deb package (with a proper console-script entry point)
+# is a natural follow-up once the individual Nexus apps are packaged
+# separately; this wrapper keeps the live image simple in the meantime.
+
+export PYTHONPATH="/opt/nexus-linux/shared:/opt/nexus-linux/nexus-store/src${PYTHONPATH:+:$PYTHONPATH}"
+exec python3 -m nexus_store.main

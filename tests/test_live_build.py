@@ -39,6 +39,43 @@ def test_live_build_launcher_script_sets_pythonpath():
     assert "PYTHONPATH" in content
 
 
+# Every Nexus app that should be reachable on the installed system: it must
+# be (1) staged into /opt/nexus-linux by build.sh, (2) launchable via a
+# wrapper script, and (3) discoverable in GNOME's app grid via a .desktop
+# entry -- otherwise the app exists in the repo but a real user can never
+# actually open it after installing.
+ALL_APPS = [
+    "nexus-installer", "nexus-center", "nexus-gaming", "nexus-driver", "nexus-update",
+    "nexus-shell-manager", "nexus-store", "nexus-backup", "nexus-settings",
+]
+
+
+def test_build_sh_stages_every_app():
+    content = (ROOT / "build.sh").read_text(encoding="utf-8")
+    for app in ALL_APPS:
+        assert app in content, f"build.sh does not stage {app} into /opt/nexus-linux"
+
+
+def test_every_app_has_a_launcher_wrapper_script():
+    bin_dir = ROOT / "config" / "includes.chroot" / "usr" / "local" / "bin"
+    for app in ALL_APPS:
+        launcher = bin_dir / app
+        assert launcher.exists(), f"Missing launcher wrapper for {app}"
+        content = launcher.read_text(encoding="utf-8")
+        module_name = app.replace("-", "_")
+        assert f"{module_name}.main" in content
+        assert "PYTHONPATH" in content
+
+
+def test_every_app_has_an_applications_desktop_entry():
+    applications_dir = ROOT / "config" / "includes.chroot" / "usr" / "share" / "applications"
+    for app in ALL_APPS:
+        entry = applications_dir / f"{app}.desktop"
+        assert entry.exists(), f"Missing usr/share/applications entry for {app}"
+        content = entry.read_text(encoding="utf-8")
+        assert f"/usr/local/bin/{app}" in content
+
+
 def test_build_iso_workflow_exists():
     workflow = Path(__file__).resolve().parents[1] / ".github" / "workflows" / "build-iso.yml"
     assert workflow.exists()

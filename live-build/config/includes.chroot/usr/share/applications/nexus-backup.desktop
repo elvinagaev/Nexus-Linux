@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Application
+Name=Nexus Backup
+Comment=Snapshots and restore workflows
+Exec=/usr/local/bin/nexus-backup
+Icon=document-save
+Terminal=false
+Categories=System;Archiving;

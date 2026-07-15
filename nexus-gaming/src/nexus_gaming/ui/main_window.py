@@ -1,10 +1,11 @@
 from PySide6.QtWidgets import (
     QMainWindow, QWidget, QVBoxLayout, QHBoxLayout, QLabel, QPushButton,
     QTableWidget, QTableWidgetItem, QHeaderView, QProgressBar, QCheckBox,
-    QComboBox,
+    QComboBox, QFileDialog,
 )
 
 from nexus_gaming.core.gaming_catalog import GAMING_CATALOG
+from nexus_gaming.core import discord_manager, proton_ge_manager, exe_runner
 from nexus_common.package_cache import (
     PackagePrefetcher, is_cached, install_from_cache, default_dry_run, PYSIDE6_AVAILABLE,
 )
@@ -81,6 +82,19 @@ class NexusGamingWindow(QMainWindow):
         btn_layout.addWidget(self.install_btn)
         layout.addLayout(btn_layout)
 
+        layout.addWidget(QLabel("Extras (fetched directly from their official sources, not apt):"))
+        extras_layout = QHBoxLayout()
+        self.discord_btn = QPushButton("Install Discord")
+        self.discord_btn.clicked.connect(self._install_discord)
+        self.proton_ge_btn = QPushButton("Install Proton-GE (latest)")
+        self.proton_ge_btn.clicked.connect(self._install_proton_ge)
+        self.run_exe_btn = QPushButton("Run .exe with Wine...")
+        self.run_exe_btn.clicked.connect(self._run_exe)
+        extras_layout.addWidget(self.discord_btn)
+        extras_layout.addWidget(self.proton_ge_btn)
+        extras_layout.addWidget(self.run_exe_btn)
+        layout.addLayout(extras_layout)
+
         central.setLayout(layout)
         self.setCentralWidget(central)
         self.statusBar().showMessage("Ready")
@@ -148,3 +162,30 @@ class NexusGamingWindow(QMainWindow):
 
         speed_note = "instantly from cache" if all_cached else "with some tools downloaded on demand"
         self.statusBar().showMessage(f"Installed: {', '.join(installed)} ({speed_note}).")
+
+    def _install_discord(self):
+        self.discord_btn.setEnabled(False)
+        self.statusBar().showMessage("Downloading and installing Discord...")
+        try:
+            message = discord_manager.install_discord(dry_run=default_dry_run())
+        except Exception as exc:  # noqa: BLE001 - surfaced to the status bar, not swallowed
+            message = f"Discord install failed: {exc}"
+        self.discord_btn.setEnabled(True)
+        self.statusBar().showMessage(message)
+
+    def _install_proton_ge(self):
+        self.proton_ge_btn.setEnabled(False)
+        self.statusBar().showMessage("Checking GitHub for the latest Proton-GE release...")
+        try:
+            message = proton_ge_manager.install_latest(dry_run=default_dry_run())
+        except Exception as exc:  # noqa: BLE001 - surfaced to the status bar, not swallowed
+            message = f"Proton-GE install failed: {exc}"
+        self.proton_ge_btn.setEnabled(True)
+        self.statusBar().showMessage(message)
+
+    def _run_exe(self):
+        path, _filter = QFileDialog.getOpenFileName(self, "Choose a Windows .exe", "", "Executables (*.exe)")
+        if not path:
+            return
+        _started, message = exe_runner.run_exe(path)
+        self.statusBar().showMessage(message)

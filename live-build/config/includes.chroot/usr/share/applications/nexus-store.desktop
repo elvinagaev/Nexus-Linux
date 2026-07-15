@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Application
+Name=Nexus Store
+Comment=Application marketplace
+Exec=/usr/local/bin/nexus-store
+Icon=system-software-install
+Terminal=false
+Categories=System;PackageManager;

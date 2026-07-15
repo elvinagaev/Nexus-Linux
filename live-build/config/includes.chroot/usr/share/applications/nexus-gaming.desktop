@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Application
+Name=Nexus Gaming
+Comment=GPU drivers, Wine, Proton-GE, Steam, Discord, and a simple .exe launcher
+Exec=/usr/local/bin/nexus-gaming
+Icon=applications-games
+Terminal=false
+Categories=Game;

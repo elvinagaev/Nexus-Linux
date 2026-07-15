@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Application
+Name=Nexus Driver Manager
+Comment=Driver and firmware management
+Exec=/usr/local/bin/nexus-driver
+Icon=drive-harddisk
+Terminal=false
+Categories=System;HardwareSettings;

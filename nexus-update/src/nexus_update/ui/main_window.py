@@ -1,9 +1,9 @@
 from PySide6.QtWidgets import (
     QMainWindow, QWidget, QVBoxLayout, QHBoxLayout, QLabel, QPushButton,
-    QComboBox, QListWidget,
+    QComboBox, QListWidget, QMessageBox,
 )
 
-from nexus_update.core import update_manager
+from nexus_update.core import update_manager, github_update_manager
 from nexus_common.package_cache import default_dry_run
 
 
@@ -46,6 +46,13 @@ class NexusUpdateWindow(QMainWindow):
         self.set_kernel_btn.clicked.connect(self._set_kernel)
         kernel_layout.addWidget(self.set_kernel_btn)
         layout.addLayout(kernel_layout)
+
+        layout.addWidget(QLabel("Nexus Linux itself (apps/installer source, from GitHub):"))
+        github_layout = QHBoxLayout()
+        self.github_update_btn = QPushButton("Check Nexus Linux Updates")
+        self.github_update_btn.clicked.connect(self._check_github_update)
+        github_layout.addWidget(self.github_update_btn)
+        layout.addLayout(github_layout)
 
         layout.addWidget(QLabel("Update History:"))
         self.history_list = QListWidget()
@@ -94,3 +101,32 @@ class NexusUpdateWindow(QMainWindow):
         update_manager.run_commands(update_manager.rollback_commands(item.text()), dry_run=default_dry_run())
         self._log_history(f"Rolled back to: {item.text()}")
         self.statusBar().showMessage("Rollback complete. See Nexus Backup for snapshot details.")
+
+    def _check_github_update(self):
+        self.github_update_btn.setEnabled(False)
+        self.statusBar().showMessage("Checking GitHub for a new Nexus Linux version...")
+        status = github_update_manager.check_for_update()
+        self.github_update_btn.setEnabled(True)
+
+        if not status["checked"]:
+            self.statusBar().showMessage("Could not reach GitHub to check for updates.")
+            return
+        if not status["available"]:
+            self.statusBar().showMessage(f"Nexus Linux is up to date (commit {status['installed']}).")
+            return
+
+        answer = QMessageBox.question(
+            self,
+            "Nexus Linux update available",
+            f"A new Nexus Linux version is available on GitHub "
+            f"(commit {status['latest']}, currently on {status['installed']}).\n\n"
+            "Download and install it now?",
+        )
+        if answer != QMessageBox.Yes:
+            self.statusBar().showMessage("Update postponed.")
+            return
+
+        self.statusBar().showMessage("Downloading and applying the Nexus Linux update...")
+        message = github_update_manager.apply_update(dry_run=default_dry_run())
+        self._log_history(message)
+        self.statusBar().showMessage(message)

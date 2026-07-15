@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Application
+Name=Nexus Settings
+Comment=System preference management
+Exec=/usr/local/bin/nexus-settings
+Icon=preferences-system
+Terminal=false
+Categories=Settings;

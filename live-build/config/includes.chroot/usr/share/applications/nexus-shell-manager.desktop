@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Application
+Name=Nexus Shell Manager
+Comment=Desktop environment installer and session manager
+Exec=/usr/local/bin/nexus-shell-manager
+Icon=preferences-desktop
+Terminal=false
+Categories=System;DesktopSettings;

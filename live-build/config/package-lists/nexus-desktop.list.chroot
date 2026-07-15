@@ -14,4 +14,5 @@ dosfstools
 e2fsprogs
 gdisk
 rsync
-policykit-1
+polkitd
+pkexec

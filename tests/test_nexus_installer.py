@@ -8,9 +8,10 @@ sys.path.insert(0, str(REPO_ROOT / "shared"))
 sys.path.insert(0, str(REPO_ROOT / "nexus-installer" / "src"))
 
 from nexus_common.constants import (
-    DEFAULT_DESKTOP, RECOMMENDED_DESKTOP, INSTALL_PROFILES, REGIONS, SUPPORTED_DESKTOPS,
+    DEFAULT_DESKTOP, RECOMMENDED_DESKTOP, DESKTOP_PACKAGES, INSTALL_PROFILES, REGIONS,
+    SUPPORTED_DESKTOPS,
 )
-from nexus_installer.core import disk_manager, efi_manager, locale_manager, account_manager
+from nexus_installer.core import disk_manager, efi_manager, locale_manager, account_manager, target_installer
 from nexus_installer.core.install_engine import InstallConfiguration, INSTALL_STEPS
 from nexus_installer.core.account_manager import AccountConfiguration, validate_account
 
@@ -78,6 +79,9 @@ def test_bootloader_commands_uefi():
     commands = efi_manager.bootloader_commands("uefi", "sda")
     assert any("grub-efi-amd64" in cmd for cmd in commands)
     assert any("grub-install" in cmd and "x86_64-efi" in cmd for cmd in commands)
+    # The ESP is already mounted by target_installer during base_system, so
+    # bootloader_commands must not try to mount it again.
+    assert not any(cmd.startswith("mount ") for cmd in commands)
 
 
 def test_bootloader_commands_bios():
@@ -173,3 +177,47 @@ def test_build_display_commands_never_exposes_password():
     joined = "\n".join(commands)
     assert "super-secret-value" not in joined
     assert "********" in joined
+
+
+def test_desktop_packages_cover_all_supported_desktops():
+    assert set(DESKTOP_PACKAGES.keys()) == set(SUPPORTED_DESKTOPS.keys())
+
+
+def test_mount_target_commands_mounts_root_esp_and_swap():
+    commands = target_installer.mount_target_commands("sda")
+    assert "mount /dev/sda3 /target" in commands
+    assert "mount /dev/sda1 /target/boot/efi" in commands
+    assert "swapon /dev/sda2" in commands
+
+
+def test_copy_system_commands_excludes_pseudo_and_live_only_paths():
+    commands = target_installer.copy_system_commands()
+    assert len(commands) == 1
+    command = commands[0]
+    assert command.startswith("rsync")
+    for excluded in ("/dev/*", "/proc/*", "/sys/*", "/run/*", "/home/*", "/target/*"):
+        assert f"--exclude={excluded}" in command
+
+
+def test_bind_mount_commands_covers_dev_proc_sys():
+    commands = target_installer.bind_mount_commands()
+    assert "mount --bind /dev /target/dev" in commands
+    assert "mount --bind /proc /target/proc" in commands
+    assert "mount --bind /sys /target/sys" in commands
+
+
+def test_unmount_target_commands_reverses_mount_order():
+    commands = target_installer.unmount_target_commands("sda")
+    assert commands.index("umount /target/dev") < commands.index("umount /target")
+    assert "swapoff /dev/sda2" in commands
+    assert commands[-1] == "umount /target"
+
+
+def test_build_fstab_contains_each_uuid_and_mountpoint():
+    content = target_installer.build_fstab("root-uuid", "esp-uuid", "swap-uuid")
+    assert "UUID=root-uuid" in content
+    assert "UUID=esp-uuid" in content
+    assert "UUID=swap-uuid" in content
+    assert " / " in content
+    assert "/boot/efi" in content
+    assert "swap" in content

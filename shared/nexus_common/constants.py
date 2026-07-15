@@ -17,6 +17,25 @@ SUPPORTED_DESKTOPS = {
 DEFAULT_DESKTOP = "gnome"
 RECOMMENDED_DESKTOP = "hyprland"
 
+# Package to `apt-get install` for each desktop environment choice. Used by
+# Nexus Installer's real "desktop" step (GNOME is skipped since it's
+# already part of the live image being cloned onto the target disk) and
+# mirrors the equivalent case statement in
+# debian/install.d/10-desktop-setup.sh (used by the separate .deb-based
+# install path) -- keep both in sync if a desktop option changes.
+DESKTOP_PACKAGES = {
+    "gnome": "ubuntu-gnome-desktop",
+    "hyprland": "hyprland",
+    "kde": "kde-standard",
+    "xfce": "xfce4",
+    "cinnamon": "cinnamon-desktop-environment",
+    "cosmic": "cosmic-desktop",
+    "mate": "mate-desktop-environment",
+    "lxqt": "lxqt",
+    "sway": "sway",
+    "i3": "i3",
+}
+
 APP_REGISTRY = {
     "nexus-center": "System settings and administration",
     "nexus-shell-manager": "Desktop environment lifecycle management",

@@ -9,3 +9,9 @@ network-manager-gnome
 sudo
 firmware-linux
 locales
+parted
+dosfstools
+e2fsprogs
+gdisk
+rsync
+policykit-1

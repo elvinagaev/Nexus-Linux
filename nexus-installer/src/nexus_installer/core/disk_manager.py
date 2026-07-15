@@ -144,6 +144,9 @@ def apply_partition_plan(plan: PartitionPlan, dry_run: bool = True) -> list:
 
     if not dry_run:
         for command in commands:
-            subprocess.run(command.split(), check=True)
+            # Elevated via `pkexec` -- the installer runs as the normal
+            # live-session user, not root (same convention as every other
+            # Nexus app's real subprocess calls).
+            subprocess.run(["pkexec", *command.split()], check=True)
 
     return commands

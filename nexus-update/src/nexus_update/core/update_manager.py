@@ -22,7 +22,7 @@ def check_updates_commands() -> list:
 
 
 def install_updates_commands() -> list:
-    return ["apt-get upgrade -y"]
+    return ["apt-get upgrade -y -o Dpkg::Options::=--force-confdef -o Dpkg::Options::=--force-confold"]
 
 
 def cleanup_commands() -> list:
@@ -39,11 +39,17 @@ def set_kernel_commands(kernel: str) -> list:
 
 
 def run_commands(commands: list, dry_run: bool) -> None:
-    """Execute a list of shell commands, elevated via pkexec, unless dry_run."""
+    """Execute a list of shell commands, elevated via pkexec, unless dry_run.
+
+    DEBIAN_FRONTEND=noninteractive stops `apt-get upgrade` from blocking on
+    a debconf/conffile prompt (routine on a real system once enough
+    packages have diverged config files) that has no tty to be answered
+    on here.
+    """
     if dry_run:
         return
     for command in commands:
-        subprocess.run(["pkexec", "sh", "-c", command], check=True)
+        subprocess.run(["pkexec", "env", "DEBIAN_FRONTEND=noninteractive", "sh", "-c", command], check=True)
 
 
 def new_history_entry(description: str) -> UpdateHistoryEntry:

@@ -36,7 +36,10 @@ def package_for(slug: str) -> str:
 
 def install_commands(slug: str) -> list:
     package = package_for(slug)
-    return [f"apt-get install -y {package}"]
+    return [
+        "apt-get install -y -o Dpkg::Options::=--force-confdef "
+        f"-o Dpkg::Options::=--force-confold {package}"
+    ]
 
 
 def remove_commands(slug: str) -> list:
@@ -57,11 +60,17 @@ def configure_display_manager_commands(display_manager: str) -> list:
 
 
 def run_commands(commands: list, dry_run: bool) -> None:
-    """Execute a list of shell commands, elevated via pkexec, unless dry_run."""
+    """Execute a list of shell commands, elevated via pkexec, unless dry_run.
+
+    DEBIAN_FRONTEND=noninteractive stops apt/dpkg from blocking on a debconf
+    question (e.g. picking a default display manager when switching desktop
+    environments pulls in sddm/lightdm alongside the existing gdm3) that has
+    no tty to be answered on here.
+    """
     if dry_run:
         return
     for command in commands:
-        subprocess.run(["pkexec", "sh", "-c", command], check=True)
+        subprocess.run(["pkexec", "env", "DEBIAN_FRONTEND=noninteractive", "sh", "-c", command], check=True)
 
 
 def read_active_desktop() -> str:

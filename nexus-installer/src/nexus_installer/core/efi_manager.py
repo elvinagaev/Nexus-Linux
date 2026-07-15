@@ -29,17 +29,21 @@ def bootloader_commands(boot_mode: str, disk: str, esp_mountpoint: str = "/boot/
     device = f"/dev/{disk}"
 
     if boot_mode == "uefi":
+        # The EFI System Partition is already mounted at esp_mountpoint (as
+        # seen from inside the target chroot) by
+        # target_installer.mount_target_commands() during the base_system
+        # step, so there is no need to create/mount it again here.
         return [
-            "apt-get install -y grub-efi-amd64 shim-signed",
-            f"mkdir -p {esp_mountpoint}",
-            f"mount {device}1 {esp_mountpoint}",
+            "apt-get install -y -o Dpkg::Options::=--force-confdef "
+            "-o Dpkg::Options::=--force-confold grub-efi-amd64 shim-signed",
             f"grub-install --target=x86_64-efi --efi-directory={esp_mountpoint} "
             "--bootloader-id=NexusLinux --recheck",
             "update-grub",
         ]
 
     return [
-        "apt-get install -y grub-pc",
+        "apt-get install -y -o Dpkg::Options::=--force-confdef "
+        "-o Dpkg::Options::=--force-confold grub-pc",
         f"grub-install {device}",
         "update-grub",
     ]

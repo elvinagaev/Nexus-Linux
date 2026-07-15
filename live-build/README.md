@@ -53,8 +53,12 @@ Package selection
 ------------------
 `config/package-lists/nexus-desktop.list.chroot` installs `task-gnome-desktop`
 + `gdm3` + `python3-pyside6.qtcore/.qtgui/.qtwidgets` + `network-manager-gnome` + `sudo` +
-`firmware-linux` + `locales`, so GNOME, networking, and Nexus Installer's
-runtime dependency are all present in the live filesystem.
+`firmware-linux` + `locales` + `parted` + `dosfstools` + `e2fsprogs` + `gdisk` +
+`rsync` + `policykit-1`, so GNOME, networking, Nexus Installer's runtime
+dependency, the disk partitioning tools the Partition step shells out to
+(`parted`, `mkfs.vfat`, `mkfs.ext4`), the live-filesystem clone step
+(`rsync`), and privilege escalation (`pkexec`, used by every Nexus app's
+real/non-simulated actions) are all present in the live filesystem.
 
 Automatic login
 ----------------

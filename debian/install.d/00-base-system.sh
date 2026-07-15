@@ -3,6 +3,9 @@
 # Ensures essential system services are configured
 
 set -e
+# Never let apt/dpkg block on an interactive debconf question (no tty is
+# attached when this script runs from a first-boot service).
+export DEBIAN_FRONTEND=noninteractive
 
 echo "Configuring Nexus Linux system services..."
 

@@ -77,10 +77,12 @@ def install_from_cache(item: CacheablePackage, dry_run: bool = True) -> list:
     command = [
         "apt-get", "install", "-y", "--no-download",
         "-o", f"Dir::Cache::Archives={CACHE_ROOT}",
+        "-o", "Dpkg::Options::=--force-confdef",
+        "-o", "Dpkg::Options::=--force-confold",
         *item.packages,
     ]
     if not dry_run:
-        subprocess.run(["pkexec", *command], check=True)
+        subprocess.run(["pkexec", "env", "DEBIAN_FRONTEND=noninteractive", *command], check=True)
     return [" ".join(command)]
 
 
@@ -130,7 +132,7 @@ class PackagePrefetcher(QThread if PYSIDE6_AVAILABLE else object):
             "-o", f"Dir::Cache::Archives={CACHE_ROOT}",
             *item.packages,
         ]
-        subprocess.run(["pkexec", *command], check=True)
+        subprocess.run(["pkexec", "env", "DEBIAN_FRONTEND=noninteractive", *command], check=True)
         self._emit_progress(item.id, 100)
 
     def _emit_started(self, item_id):

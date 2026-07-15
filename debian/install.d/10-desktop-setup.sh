@@ -5,6 +5,10 @@
 # ensuring maximum compatibility on first boot.
 
 set -e
+# Never let apt/dpkg block on an interactive debconf question (e.g. picking
+# a default display manager when a second desktop's package pulls in
+# sddm/lightdm alongside gdm3) -- no tty is attached here.
+export DEBIAN_FRONTEND=noninteractive
 
 CONFIG_FILE="/etc/nexus/desktop-selection.conf"
 DEFAULT_DESKTOP="gnome"

@@ -2,6 +2,9 @@
 # Gaming configuration and driver setup
 
 set -e
+# Never let apt/dpkg block on an interactive debconf question (no tty is
+# attached when this script runs from a first-boot service).
+export DEBIAN_FRONTEND=noninteractive
 
 echo "Setting up gaming environment..."
 

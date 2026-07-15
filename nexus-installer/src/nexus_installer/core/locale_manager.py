@@ -1,5 +1,6 @@
 """Region, locale, timezone, and keyboard layout handling for Nexus Installer."""
 
+import subprocess
 from pathlib import Path
 import sys
 
@@ -35,3 +36,33 @@ def apply_locale_commands(region: dict) -> list:
         f"echo '{region['timezone']}' > /etc/timezone",
         f"localectl set-x11-keymap {region['keyboard']}",
     ]
+
+
+def apply_locale(region: dict, target_root: str | None = None) -> None:
+    """
+    Actually apply locale/timezone/keyboard settings. Never invoked during
+    simulation/dry-run. Elevated via `pkexec` (the installer runs as a
+    normal user, not root); `localectl`'s X11 keymap step is best-effort
+    since it talks to systemd over D-Bus and may not work inside a chroot
+    with no running D-Bus session -- timezone is set by writing
+    /etc/localtime + /etc/timezone directly instead, for the same reason
+    (and so no shell is ever needed for the redirection/symlink).
+    """
+    prefix = ["pkexec"]
+    if target_root:
+        prefix = prefix + ["chroot", target_root]
+
+    subprocess.run([*prefix, "locale-gen", region["locale"]], check=True)
+    subprocess.run([*prefix, "update-locale", f"LANG={region['locale']}"], check=True)
+    subprocess.run(
+        [*prefix, "ln", "-sfn", f"/usr/share/zoneinfo/{region['timezone']}", "/etc/localtime"],
+        check=True,
+    )
+    subprocess.run(
+        [*prefix, "tee", "/etc/timezone"],
+        input=f"{region['timezone']}\n", text=True, check=True, stdout=subprocess.DEVNULL,
+    )
+    try:
+        subprocess.run([*prefix, "localectl", "set-x11-keymap", region["keyboard"]], check=True)
+    except (subprocess.CalledProcessError, FileNotFoundError):
+        pass
